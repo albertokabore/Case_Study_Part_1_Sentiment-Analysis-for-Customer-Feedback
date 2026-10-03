@@ -1,0 +1,20 @@
+{
+  "slug": "svm_tfidf",
+  "name": "Linear SVM",
+  "algorithm": "Linear Support Vector Machine",
+  "features": "TF-IDF (word n-grams)",
+  "best_params": {
+    "clf__C": 0.25,
+    "clf__class_weight": "balanced",
+    "tfidf__ngram_range": [
+      1,
+      2
+    ]
+  },
+  "cv_macro_f1_mean": 0.7338317789030996,
+  "cv_macro_f1_std": 0.013496761195124147,
+  "n_candidates": 20,
+  "tuning_seconds": 20.3,
+  "inference_ms_per_1k": 18.4,
+  "family": "Classical ML"
+}

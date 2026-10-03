@@ -1,0 +1,9 @@
+,value
+Tweets,14485
+Airlines,6
+First tweet (UTC),2015-02-17
+Last tweet (UTC),2015-02-24
+Mean words per tweet,17.7
+Median words per tweet,19
+Mean annotator confidence,0.901
+% tweets with confidence < 1,28.5

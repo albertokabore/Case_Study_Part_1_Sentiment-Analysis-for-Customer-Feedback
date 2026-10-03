@@ -1,0 +1,20 @@
+{
+  "slug": "lr_tfidf",
+  "name": "Logistic Regression",
+  "algorithm": "Logistic Regression (multinomial)",
+  "features": "TF-IDF (word n-grams)",
+  "best_params": {
+    "clf__C": 0.5,
+    "clf__class_weight": "balanced",
+    "tfidf__ngram_range": [
+      1,
+      2
+    ]
+  },
+  "cv_macro_f1_mean": 0.728536378455903,
+  "cv_macro_f1_std": 0.008790507273034246,
+  "n_candidates": 20,
+  "tuning_seconds": 56.0,
+  "inference_ms_per_1k": 38.1,
+  "family": "Classical ML"
+}

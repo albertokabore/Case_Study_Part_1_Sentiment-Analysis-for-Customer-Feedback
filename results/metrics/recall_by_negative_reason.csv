@@ -1,0 +1,11 @@
+negativereason,n,recall
+Can't Tell,181,0.751
+Bad Flight,84,0.857
+Flight Booking Problems,85,0.859
+Customer Service Issue,440,0.895
+Flight Attendant Complaints,85,0.906
+Late Flight,250,0.924
+Lost Luggage,86,0.93
+Cancelled Flight,119,0.933
+Damaged Luggage,7,1.0
+longlines,26,1.0

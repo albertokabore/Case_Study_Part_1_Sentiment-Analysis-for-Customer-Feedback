@@ -1,0 +1,7 @@
+variant,cv_macro_f1_mean,cv_macro_f1_std,vocabulary_size
+Raw text (lower-cased only),0.7461845299739035,0.01543647833053381,26445
+"Normalised + tokenised (keep stop words, no lemmatisation)",0.7500334104968382,0.008800985275013655,23960
++ stop-word removal (negations kept),0.7347329956232146,0.0059523747452842,14572
++ lemmatisation (full pipeline – used),0.7318920806628737,0.006796370266054507,14416
+Full pipeline but negations removed as stop words,0.7206694291628173,0.0032448937232927694,13682
+Lemmatisation without stop-word removal,0.7487343316260939,0.01253569579944347,22253

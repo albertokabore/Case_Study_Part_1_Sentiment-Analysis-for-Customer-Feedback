@@ -1,0 +1,16 @@
+{
+  "slug": "lr_word2vec",
+  "name": "Logistic Regression (Word2Vec)",
+  "algorithm": "Logistic Regression (multinomial)",
+  "features": "Word2Vec skip-gram, 100-d, IDF-weighted mean",
+  "best_params": {
+    "clf__C": 0.01,
+    "clf__class_weight": "balanced"
+  },
+  "cv_macro_f1_mean": 0.6645543879810293,
+  "cv_macro_f1_std": 0.00807042395999655,
+  "n_candidates": 6,
+  "tuning_seconds": 973.9,
+  "inference_ms_per_1k": 246.6,
+  "family": "Classical ML"
+}

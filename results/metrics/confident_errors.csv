@@ -1,0 +1,16 @@
+tweet_id,airline,text,true,predicted,model_confidence,airline_sentiment_confidence
+567919531068391425,US Airways,@USAirways thank you,neutral,positive,1.9051246182621928,0.6737
+569948758118526976,American,@AmericanAir Thank you,neutral,positive,1.9051246182621928,1.0
+569199095505690624,United,"@united All flights Cancelled Flighted :( Trip refunded without difficulty, staff extremely helpful, no complaints! Way to handle bad weather!",positive,negative,1.1048583239824612,0.6793
+570093462738984961,American,@AmericanAir no not yet. Waiting to be connected to an agent,neutral,negative,1.1035494898595417,0.6907
+569476889313562624,United,@united Thanks!  Good to know.,neutral,positive,1.0749150187641248,0.6863
+568463644503240704,United,@united  RES # 0167560070877     Fsqthg   Thanks,neutral,positive,1.04587094218321,1.0
+568521960088449025,JetBlue,@JetBlue I can't. I don't have acces to a phone rn. My iPhone broke. :/ would rather change it now then Late Flightr.,neutral,negative,0.9777044055474238,1.0
+570298679250305024,American,@AmericanAir u r horrible.went online to Cancelled Flight flight-no button-4that.Called CS &amp;wait time 40 mins&amp;put in my #.800#called&amp;it hungupNOHELP,neutral,negative,0.9679487249349994,1.0
+568818335200223232,United,@united can't wait!!! 787!!! @tpallini http://t.co/oDlall5eDH,positive,negative,0.9508886131033044,0.6746
+569580671112388608,United,@united no thank you,neutral,positive,0.9236070643731012,0.6186
+570051834188075008,American,"@AmericanAir thanks.  I actually made it, my connection flight was delayed.  Guess all delays are not a bad thing. http://t.co/XGgCNTco8m",positive,negative,0.9128169948397848,1.0
+568243175074242560,JetBlue,@JetBlue Can you do me a huge favor?!🙏❤️,neutral,positive,0.8974693846959249,0.6793
+569972097453137920,United,"@united Thank you, ^JH, appreciate the prompt responses--me and other passengers will be doing so.",neutral,positive,0.8554289814884585,0.335
+570074886606958592,American,@AmericanAir Just followed you.,positive,neutral,0.8188592025465236,0.7009
+569936658876862464,JetBlue,RT @JetBlue: Our fleet's on fleek. http://t.co/NfjAuW16vZ&lt;--....😕,negative,neutral,0.7942993396846207,0.7118

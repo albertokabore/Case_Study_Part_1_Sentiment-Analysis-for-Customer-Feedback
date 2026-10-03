@@ -1,0 +1,78 @@
+{
+  "config": {
+    "embedding_dim": 100,
+    "hidden_dim": 128,
+    "dropout": 0.4,
+    "max_len": 40,
+    "min_freq": 2,
+    "batch_size": 64,
+    "lr": 0.001,
+    "max_epochs": 15,
+    "patience": 3,
+    "class_weighted": true,
+    "pretrained_word2vec": true,
+    "seed": 42
+  },
+  "vocab_size": 3869,
+  "best_val_macro_f1": 0.7413423229076871,
+  "epochs_trained": 8,
+  "best_epoch": 5,
+  "n_parameters": 623959,
+  "training_seconds": 248.3,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.782447881750459,
+      "val_loss": 0.6546154618263245,
+      "val_macro_f1": 0.7215665015923517
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.5858560887675441,
+      "val_loss": 0.5970047116279602,
+      "val_macro_f1": 0.7205200311410788
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.5184492024341647,
+      "val_loss": 0.5933243036270142,
+      "val_macro_f1": 0.7379203084384067
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.47077722766187985,
+      "val_loss": 0.5907905697822571,
+      "val_macro_f1": 0.7302808200008171
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.42981528339330494,
+      "val_loss": 0.6075653433799744,
+      "val_macro_f1": 0.7413423229076871
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.3905143129342359,
+      "val_loss": 0.6448756456375122,
+      "val_macro_f1": 0.7326386985171052
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.363510545329566,
+      "val_loss": 0.6368334293365479,
+      "val_macro_f1": 0.7264198997947057
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.33311042645495137,
+      "val_loss": 0.6406117677688599,
+      "val_macro_f1": 0.7222350093251002
+    }
+  ],
+  "inference_ms_per_1k": 388.7,
+  "slug": "bilstm",
+  "name": "BiLSTM (RNN)",
+  "algorithm": "Bidirectional LSTM",
+  "features": "Word2Vec-initialised embeddings (fine-tuned)",
+  "family": "Deep learning (RNN)"
+}

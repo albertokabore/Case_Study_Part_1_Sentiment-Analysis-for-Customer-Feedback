@@ -1,0 +1,6 @@
+comparison,a_only_correct,b_only_correct,statistic,p_value,significant_at_0.05,p_value_holm,significant_holm_at_0.05
+Linear SVM (word+char) vs Logistic Regression (Word2Vec),308,104,100.02184466019418,1.5072543879750183e-23,True,7.536271939875091e-23,True
+Linear SVM (word+char) vs Logistic Regression,113,47,26.40625,2.7664388627882057e-07,True,1.1065755451152823e-06,True
+Linear SVM (word+char) vs Naive Bayes,164,107,11.571955719557195,0.0006695396109656457,True,0.0020086188328969374,True
+Linear SVM (word+char) vs BiLSTM (RNN),152,114,5.146616541353383,0.02329171478424413,True,0.04658342956848826,True
+Linear SVM (word+char) vs Linear SVM,79,56,3.585185185185185,0.058296918814502656,False,0.058296918814502656,False

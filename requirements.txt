@@ -1,0 +1,26 @@
+# Python 3.10–3.12 (developed and tested on 3.11.0, Windows 11, CPU only)
+# Core data & ML
+numpy>=2.0,<3
+pandas>=2.2,<3
+scikit-learn>=1.5,<1.8
+scipy>=1.13
+statsmodels>=0.14
+joblib>=1.4
+
+# NLP
+nltk>=3.9
+emoji>=2.12
+gensim>=4.4
+
+# Deep learning (CPU wheels are sufficient; a GPU only speeds up the Transformer stage)
+torch>=2.3
+transformers>=4.44
+
+# Visualisation & notebook
+matplotlib>=3.8
+jupyter>=1.0
+nbconvert>=7.16
+
+# Report generation & tests
+python-docx>=1.1
+pytest>=8.0

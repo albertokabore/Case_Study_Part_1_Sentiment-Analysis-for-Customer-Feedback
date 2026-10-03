@@ -1,0 +1,20 @@
+{
+  "slug": "nb_tfidf",
+  "name": "Naive Bayes",
+  "algorithm": "Multinomial Naive Bayes",
+  "features": "TF-IDF (word n-grams)",
+  "best_params": {
+    "clf__alpha": 0.5,
+    "clf__fit_prior": false,
+    "tfidf__ngram_range": [
+      1,
+      2
+    ]
+  },
+  "cv_macro_f1_mean": 0.7011764198363484,
+  "cv_macro_f1_std": 0.004959421221628989,
+  "n_candidates": 20,
+  "tuning_seconds": 36.5,
+  "inference_ms_per_1k": 23.1,
+  "family": "Classical ML"
+}

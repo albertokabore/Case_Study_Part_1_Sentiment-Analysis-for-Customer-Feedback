@@ -1,0 +1,13 @@
+model,slug,confidence_band,n,accuracy
+Linear SVM (word+char),svm_word_char,< 0.60,34,0.47058823529411764
+Linear SVM (word+char),svm_word_char,0.60–0.80,568,0.6214788732394366
+Linear SVM (word+char),svm_word_char,0.80–0.99,6,1.0
+Linear SVM (word+char),svm_word_char,1.00 (maximum score),1565,0.8907348242811501
+Linear SVM,svm_tfidf,< 0.60,34,0.4411764705882353
+Linear SVM,svm_tfidf,0.60–0.80,568,0.6320422535211268
+Linear SVM,svm_tfidf,0.80–0.99,6,1.0
+Linear SVM,svm_tfidf,1.00 (maximum score),1565,0.8728434504792332
+Naive Bayes,nb_tfidf,< 0.60,34,0.4117647058823529
+Naive Bayes,nb_tfidf,0.60–0.80,568,0.6038732394366197
+Naive Bayes,nb_tfidf,0.80–0.99,6,1.0
+Naive Bayes,nb_tfidf,1.00 (maximum score),1565,0.8619808306709266

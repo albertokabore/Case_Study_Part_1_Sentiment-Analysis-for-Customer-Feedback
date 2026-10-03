@@ -1,0 +1,4 @@
+{
+  "best_model": "svm_word_char",
+  "best_model_name": "Linear SVM (word+char)"
+}

@@ -1,0 +1,59 @@
+{
+  "cleaning": {
+    "raw_rows": 14640,
+    "duplicate_rows_removed": 155,
+    "duplicate_ids_with_conflicting_labels": 18,
+    "airline_rows_relabelled": 2222,
+    "clean_rows": 14485
+  },
+  "split_sizes": {
+    "train": 10139,
+    "val": 2173,
+    "test": 2173
+  },
+  "validated_models": [
+    "bilstm",
+    "lr_tfidf",
+    "lr_word2vec",
+    "nb_tfidf",
+    "svm_tfidf",
+    "svm_word_char"
+  ],
+  "maximum_metric_absolute_errors": {
+    "bilstm": 1.1102230246251565e-16,
+    "lr_tfidf": 1.1102230246251565e-16,
+    "lr_word2vec": 0.0,
+    "nb_tfidf": 0.0,
+    "svm_tfidf": 1.1102230246251565e-16,
+    "svm_word_char": 0.0
+  },
+  "test_development_shared_lowercased_texts": 13,
+  "search_provenance": {
+    "nb_tfidf": {
+      "saved_candidates": 20,
+      "current_grid_candidates": 20,
+      "historical_grid_saved": false
+    },
+    "lr_tfidf": {
+      "saved_candidates": 20,
+      "current_grid_candidates": 24,
+      "historical_grid_saved": false
+    },
+    "svm_tfidf": {
+      "saved_candidates": 20,
+      "current_grid_candidates": 20,
+      "historical_grid_saved": false
+    },
+    "svm_word_char": {
+      "saved_candidates": 8,
+      "current_grid_candidates": 10,
+      "historical_grid_saved": false
+    },
+    "lr_word2vec": {
+      "saved_candidates": 6,
+      "current_grid_candidates": 6,
+      "historical_grid_saved": false
+    }
+  },
+  "transformer_results_available": false
+}

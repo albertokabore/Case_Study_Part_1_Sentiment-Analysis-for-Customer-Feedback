@@ -218,3 +218,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Project-specific ---
+# Trained model weights are large and fully reproducible via scripts/run_pipeline.py
+/models/
+# Run logs
+results/logs/

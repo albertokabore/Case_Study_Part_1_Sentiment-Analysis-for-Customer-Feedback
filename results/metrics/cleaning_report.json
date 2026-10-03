@@ -1,0 +1,7 @@
+{
+  "raw_rows": 14640,
+  "duplicate_rows_removed": 155,
+  "duplicate_ids_with_conflicting_labels": 18,
+  "airline_rows_relabelled": 2222,
+  "clean_rows": 14485
+}

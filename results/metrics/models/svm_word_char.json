@@ -1,0 +1,16 @@
+{
+  "slug": "svm_word_char",
+  "name": "Linear SVM (word+char)",
+  "algorithm": "Linear Support Vector Machine",
+  "features": "TF-IDF (word 1-2 + char 2-5 n-grams)",
+  "best_params": {
+    "clf__C": 0.05,
+    "clf__class_weight": "balanced"
+  },
+  "cv_macro_f1_mean": 0.7416879107556212,
+  "cv_macro_f1_std": 0.009155156318961615,
+  "n_candidates": 8,
+  "tuning_seconds": 77.2,
+  "inference_ms_per_1k": 242.2,
+  "family": "Classical ML"
+}

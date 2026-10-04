@@ -1,12 +1,12 @@
 # Sentiment Analysis for Customer Feedback (Airline Industry)
 
-Case Study Part 1. This project classifies customer tweets about US airlines as **negative, neutral or positive** and compares classical machine learning (Naive Bayes, Logistic Regression, Linear SVM) with a BiLSTM RNN. DistilRoBERTa Transformer code is an optional extension; completed Transformer results are not currently available. It then turns the results into business insights for a customer-experience team.
+Case Study Part 1. This project classifies customer tweets about US airlines as **negative, neutral or positive** and compares classical machine learning (Naive Bayes, Logistic Regression, Linear SVM) with a BiLSTM RNN. DistilRoBERTa Transformer code is an optional extension; completed Transformer results are not currently available. The results are interpreted in terms of complaint review and customer-experience monitoring.
 
 | Assignment step | Where it is implemented |
 |---|---|
 | 1. Data collection | [src/data_loading.py](src/data_loading.py), [src/eda.py](src/eda.py) |
 | 2. Preprocessing (stop words, punctuation, tokenisation, lemmatisation) | [src/preprocessing.py](src/preprocessing.py) |
-| 3. Feature extraction (TF-IDF, Word2Vec, contextual embeddings) | [src/features.py](src/features.py) |
+| 3. Feature extraction (TF-IDF and Word2Vec) | [src/features.py](src/features.py) |
 | 4. Model development (NB, SVM, LR, RNN, Transformer) | [src/classical_models.py](src/classical_models.py), [src/rnn_model.py](src/rnn_model.py), [src/transformer_model.py](src/transformer_model.py) |
 | 5. Evaluation (accuracy, precision, recall, F1, ROC, confusion matrices, significance tests) | [src/evaluation.py](src/evaluation.py) |
 | 6. Interpretation and business insights | [src/insights.py](src/insights.py) |
@@ -72,11 +72,11 @@ jupyter notebook notebooks/sentiment_analysis.ipynb
 Run all cells. By default the notebook:
 
 * refits each classical model with the hyper-parameters selected by the grid search (stored in `results/metrics/models/*.json`), which takes about a minute;
-* loads the saved BiLSTM and Transformer test predictions from `results/predictions/`.
+* loads saved BiLSTM test predictions from `results/predictions/`; Transformer predictions are included only if they exist.
 
 Set `RUN_GRID_SEARCH`, `TRAIN_BILSTM` or `TRAIN_TRANSFORMER` to `True` in the first code cell to re-run those steps in the notebook.
 
-### Option B: the full pipeline (reproduces every result from scratch)
+### Option B: the full pipeline (runs a new experiment from scratch)
 
 ```bash
 python scripts/run_pipeline.py                      # all stages
@@ -108,7 +108,7 @@ Stages communicate only through files in `results/` and `models/`, so any stage 
 python scripts/build_report.py --author "Your Name" --course "Course" --instructor "Instructor"
 ```
 
-Every number, table and figure in the paper is read from `results/`, so re-run this after the pipeline (for example once the Transformer stage has finished) to keep the paper in sync. DistilRoBERTa results are included automatically when they exist.
+Reported metrics, tables and figures are generated from `results/`, so re-run this after the pipeline (for example once the Transformer stage has finished) to keep the paper in sync. DistilRoBERTa results are included automatically when they exist.
 
 ### Tests
 
@@ -120,7 +120,7 @@ pytest -q
 
 * One random seed (`config.SEED = 42`) is set for Python, NumPy, PyTorch, the data split, CV folds, Word2Vec (single worker) and every model.
 * The test set (15%, stratified) is held out from model parameter fitting. Business diagnostics reuse it; test-selected triage thresholds are exploratory. Classical models are tuned with 5-fold CV on train + validation; neural models use the validation set for early stopping.
-* Vectorisers are fitted inside each CV fold through scikit-learn `Pipeline`s, so nothing leaks from held-out data.
+* Vectorisers are fitted inside each CV fold through scikit-learn `Pipeline`s, so predictive vocabulary and IDF weights are not fitted on held-out folds. Repeated texts across the development and test splits remain a separate limitation.
 * `results/metrics/split_assignment.csv` records which split every tweet belongs to.
 * The notebook checks that its refitted classical models reproduce the saved pipeline predictions.
 
@@ -145,4 +145,4 @@ python scripts/run_pipeline.py --skip-transformer
 
 Use the same library versions and hardware for exact comparisons. Word2Vec initialization depends on hashing even with one worker. Notebook refits warn if predictions differ. The notebook creates selected outputs; the full pipeline creates the complete result set. Rebuild the DOCX after changing results.
 
-The DOCX requires your author, course and instructor details. Case Study Part 2 requires a separate presentation.
+The final DOCX identifies Albert Kabore, PhD Student in AI, and omits course and instructor placeholders. Submit `reports/Sentiment_Analysis_Research_Paper.docx` and `reports/Case_Study_Part_1_Submission.zip`. The ZIP contains one research paper plus the notebook, code, dataset and saved results. Case Study Part 2 requires a separate presentation.

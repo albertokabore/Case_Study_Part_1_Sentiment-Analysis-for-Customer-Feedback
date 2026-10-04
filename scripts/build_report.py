@@ -263,6 +263,10 @@ class Paper:
     def save(self, path: Path) -> Path:
         self._resolve_references()
         path.parent.mkdir(parents=True, exist_ok=True)
+        self.doc.core_properties.author = ""
+        self.doc.core_properties.last_modified_by = ""
+        self.doc.core_properties.comments = ""
+        self.doc.core_properties.keywords = ""
         self.doc.save(path)
         return path
 
@@ -315,7 +319,7 @@ def build(args) -> Path:
     t = P.p("**Sentiment Analysis for Customer Feedback:**", align=WD_ALIGN_PARAGRAPH.CENTER)
     t.runs[0].font.size = Pt(22)
     t.runs[0].font.color.rgb = ACCENT
-    t = P.p("Classifying Airline Customer Tweets with Classical Machine Learning, Recurrent Networks and Transformers",
+    t = P.p("Classifying Airline Customer Feedback with Classical Machine Learning and a Bidirectional LSTM",
             align=WD_ALIGN_PARAGRAPH.CENTER)
     t.runs[0].font.size = Pt(15)
     P.doc.add_paragraph()
@@ -323,6 +327,9 @@ def build(args) -> Path:
     P.doc.add_paragraph()
     for label, value in (("Author", args.author), ("Course", args.course), ("Instructor", args.instructor),
                          ("Date", args.date)):
+        if (label, value) in (("Course", "[Course Name and Number]"),
+                              ("Instructor", "[Instructor Name]")):
+            continue
         para = P.p(f"{label}: ", align=WD_ALIGN_PARAGRAPH.CENTER)
         run = para.add_run(value)
         if value.startswith("["):
@@ -334,31 +341,30 @@ def build(args) -> Path:
     tr_sentence = (
         f"a fine-tuned DistilRoBERTa Transformer reached macro-F1 {f3(by_slug.loc['distilroberta', 'f1_macro'])}"
         if r["has_transformer"] else
-        "a DistilRoBERTa Transformer was implemented, but its fine-tuning could not be completed on the "
-        "available CPU-only hardware and it is reported as future work"
+        "DistilRoBERTa training code is included as an optional extension, but completed evaluation results are unavailable"
     )
     P.p(
-        "Airlines receive public customer feedback on social media; most tweets in the selected dataset are "
-        "negative. This study builds and compares sentiment-analysis models that classify airline customer tweets "
-        "as negative, neutral or positive, and examines how their output can support business decisions. Using the "
+        "This study evaluates three-class sentiment classification of airline customer feedback. The corpus is "
+        "predominantly negative. The evaluated models assign customer tweets "
+        "to negative, neutral or positive classes. Using the "
         f"Twitter US Airline Sentiment dataset ({n_clean:,} tweets after cleaning; {neg_share:.0f}% negative, "
         f"{neu_share:.0f}% neutral, {pos_share:.0f}% positive), tweets were normalised, tokenised, lemmatised and "
         "filtered for stop words and punctuation, then represented with TF-IDF word and character n-grams and "
-        f"Word2Vec embeddings. We compared {model_word} models: Multinomial Naive Bayes, Logistic Regression and "
-        "Linear Support Vector Machines (SVM) on TF-IDF features, Logistic Regression on Word2Vec features, a "
-        "bidirectional LSTM recurrent network"
+        f"Word2Vec embeddings. The experiment compared {model_word} configurations: Multinomial Naive Bayes and Logistic "
+        "Regression on word TF-IDF, Linear Support Vector Machines (SVM) on word TF-IDF and combined "
+        "word-and-character TF-IDF, Logistic Regression on Word2Vec, and a bidirectional LSTM recurrent network"
         + (", and a fine-tuned DistilRoBERTa Transformer" if r["has_transformer"] else "")
-        + ". Classical models were tuned by stratified 5-fold cross-validation, and every model was evaluated once "
-        "on the same held-out test set with accuracy, macro-averaged precision, recall and F1, ROC-AUC, bootstrap "
-        f"confidence intervals and McNemar's test. The best model was the **{best['model']}**, with accuracy "
+        + ". Classical models were tuned by stratified 5-fold cross-validation, and every model was evaluated "
+        "on the same test set with accuracy, macro-averaged precision, recall and F1, ROC-AUC, bootstrap "
+        f"confidence intervals and McNemar's test. The highest test macro-F1 was obtained by the **{best['model']}**, with accuracy "
         f"{f3(best['accuracy'])} and macro-F1 {f3(best['f1_macro'])} (95% CI {f3(best['f1_macro_ci_low'])}–"
         f"{f3(best['f1_macro_ci_high'])}); "
         + (f"the BiLSTM reached macro-F1 {f3(by_slug.loc['bilstm', 'f1_macro'])}; " if "bilstm" in by_slug.index else "")
-        + f"{tr_sentence}. Neutral tweets were the hardest class (F1 {f3(best_pc.loc['neutral', 'f1'])}). "
-        f"Model-predicted Net Sentiment Scores matched human-labelled scores per airline to within "
-        f"{kpis['abs_error_nss'].mean():.1f} points on average, and at an exploratory test-selected threshold that catches 95% of negative "
-        f"tweets, {pct(triage.loc[0.95, 'precision'], 0)} of flagged tweets were truly negative. The results show "
-        "potential for a fast linear model to support complaint triage and service monitoring. The triage "
+        + f"{tr_sentence}. Neutral tweets had the lowest class-specific F1 (F1 {f3(best_pc.loc['neutral', 'f1'])}). "
+        f"The mean absolute discrepancy between predicted and annotated airline Net Sentiment Scores was "
+        f"{kpis['abs_error_nss'].mean():.1f} points. At an exploratory threshold selected to recover 95% of negative "
+        f"tweets, {pct(triage.loc[0.95, 'precision'], 0)} of flagged tweets were negative. These estimates indicate "
+        "possible applications in complaint triage and sentiment monitoring. The triage "
         "thresholds were selected on the test set and are exploratory; deployment requires independent validation."
     )
     P.p("*Keywords:* sentiment analysis, natural language processing, customer feedback, airline industry, "
@@ -369,29 +375,27 @@ def build(args) -> Path:
     P.h("1.1 Background", 2)
     P.p(
         "Sentiment analysis is the automatic identification of the opinion or attitude expressed in text "
-        "(Pang & Lee, 2008; Liu, 2012). Early systems relied on sentiment word lists. Supervised machine learning "
-        "on bag-of-words features then became the standard approach, and neural networks followed: recurrent "
-        "networks that read text in order (Hochreiter & Schmidhuber, 1997) and, most recently, pre-trained "
-        "Transformer language models (Devlin et al., 2019; Liu et al., 2019) that are fine-tuned for the task."
+        "(Pang & Lee, 2008; Liu, 2012). Lexicon-based methods assign sentiment using predefined word lists. Supervised classifiers "
+        "learn decision functions from labelled text represented as bag-of-words features. Recurrent "
+        "networks encode token sequences (Hochreiter & Schmidhuber, 1997), while pretrained "
+        "Transformer language models learn contextual representations that can be fine-tuned for classification (Devlin et al., 2019; Liu et al., 2019)."
     )
     P.h("1.2 Relevance to the airline industry", 2)
     P.p(
-        "Air travel is a service business with frequent, visible failures: delays, cancellations, lost bags and "
-        "long call-centre waits. Customers increasingly report these problems publicly on Twitter (now X) and "
-        "expect a fast reply. For an airline, this feedback is both a risk and a resource. Unanswered complaints "
-        "damage the brand in public, but the same stream shows, in near real time, which operational problems "
-        "customers notice most. The volume is too high to read manually, so an accurate automatic classifier "
-        "can (1) route negative tweets to service agents quickly, (2) track sentiment over time and across "
-        "competitors, and (3) quantify the causes of dissatisfaction."
+        "Airline customer feedback includes reports of delays, cancellations, baggage problems and service "
+        "interactions. Classifying these messages can help service teams prioritize review and summarize "
+        "patterns in feedback. This study examines those potential uses through a historical Twitter dataset. "
+        "Sentiment classification identifies the expressed attitude; it does not establish the causes of "
+        "dissatisfaction or the effects of a business intervention."
     )
     P.h("1.3 Research objectives", 2)
     P.bullets([
         "Collect and describe a labelled customer-feedback dataset from the airline industry that covers all three sentiment classes.",
         "Design and justify a preprocessing pipeline for noisy social-media text, and measure the effect of each step.",
-        "Compare sparse (TF-IDF) and dense (Word2Vec, contextual) feature representations.",
-        "Train and tune classical machine-learning models (Naive Bayes, Logistic Regression, SVM) and deep-learning models (RNN, Transformer).",
+        "Compare sparse TF-IDF features with dense Word2Vec representations and a BiLSTM sequence model.",
+        "Train and tune Naive Bayes, Logistic Regression, SVM and BiLSTM models; document Transformer code as an optional extension.",
         "Evaluate all models on the same held-out test set with accuracy, precision, recall, F1 and ROC analysis, and test whether differences are statistically significant.",
-        "Translate the results into recommendations for customer-experience and operations teams.",
+        "Assess the implications of classification errors for complaint routing and aggregate sentiment reporting.",
     ], numbered=True)
 
     # ---------------------------------------------------------------- data
@@ -412,15 +416,15 @@ def build(args) -> Path:
         "complaint reasons that make it possible to link model output to operational decisions."
     )
     P.h("2.2 Data cleaning", 2)
-    P.p("Exploration revealed three data-quality problems, handled as follows:")
+    P.p("The data audit identified duplicate identifiers, inconsistent airline assignments and text artefacts:")
     P.bullets([
         f"**Duplicate tweets.** {cl['duplicate_rows_removed']} rows repeated an existing tweet ID, and "
-        f"{cl['duplicate_ids_with_conflicting_labels']} of those duplicate pairs had conflicting sentiment labels. "
+        f"{cl['duplicate_ids_with_conflicting_labels']} duplicate identifiers were associated with conflicting sentiment labels. "
         "One row per tweet was kept, choosing the annotation with the highest confidence.",
-        f"**Mislabelled airline.** All {cl['airline_rows_relabelled']:,} rows labelled *Delta* are, in "
-        f"{pct(r['delta_to_jetblue'])} of cases, addressed to @JetBlue. The airline field was corrected to "
-        "JetBlue so that airline-level insights are not misattributed. The tweet text and sentiment labels were "
-        "not changed.",
+        f"**Airline assignment.** Of the {cl['airline_rows_relabelled']:,} rows labelled *Delta*, "
+        f"{pct(r['delta_to_jetblue'])} contain @JetBlue. These rows were reassigned to JetBlue for airline-level "
+        "analysis. This is a dataset-level assumption rather than verification of the intended carrier for "
+        "every tweet. Tweet text and sentiment labels were retained.",
         "**Text artefacts.** The distributed text contains unusual strings such as \"Late Flightr\" and "
         "\"Cancelled Flightled\", consistent with substitution artefacts; their origin cannot be established "
         "from this CSV. These strings were left in place rather than applying an unverified repair. They "
@@ -434,7 +438,7 @@ def build(args) -> Path:
                                                   "percent": "Share (%)"})
     P.table(sent_tab, "Distribution of sentiment labels.", widths=[2.0, 1.5, 1.5], font_size=9.5)
     P.p(
-        f"The classes are clearly **imbalanced**: {neg_share}% of tweets are negative, {neu_share}% neutral and "
+        f"The class distribution is **imbalanced**: {neg_share}% of tweets are negative, {neu_share}% neutral and "
         f"{pos_share}% positive ([[fig:eda_sentiment_distribution]]). A classifier that always predicted *negative* would already reach "
         f"{neg_share:.0f}% accuracy, so macro-averaged F1, which weights the three classes equally, was chosen as "
         "the main evaluation metric. Sentiment also differs strongly by airline ([[tab:airline]] and [[fig:eda_sentiment_by_airline]]): "
@@ -464,7 +468,7 @@ def build(args) -> Path:
     P.p(
         "All classical models share one preprocessing pipeline, implemented in `src/preprocessing.py`. It applies "
         "the steps required by the assignment (tokenisation, lemmatisation, stop-word and punctuation removal) "
-        "after a normalisation stage designed for tweets:"
+        "following tweet-specific normalisation:"
     )
     P.bullets([
         "**Normalisation:** decode HTML entities; remove URLs and @mentions; split hashtags into words "
@@ -485,34 +489,34 @@ def build(args) -> Path:
     )
     P.h("3.2 Justification", 2)
     P.bullets([
-        "**Mentions and URLs** identify the airline or a link rather than the opinion. Keeping them would let a "
-        "model learn each airline's average sentiment instead of reading the text.",
-        "**Emoji are converted, not deleted,** because on social media they are some of the strongest "
-        "sentiment signals (e.g. emo_smile and emo_folded_hands are among the most typical positive tokens).",
+        "**Mentions and URLs** were removed to limit reliance on airline identifiers and linked content. "
+        "Retaining them could allow a classifier to exploit airline-specific class frequencies.",
+        "**Emoji** were mapped to lexical tokens to retain affective information. Observed positive-class "
+        "associations include emo_smile and emo_folded_hands.",
         "**Negations are kept** because removing *not* turns \"not happy\" into \"happy\" and reverses the meaning.",
         "**Lemmatisation and stop-word removal** reduce the vocabulary and the sparsity of the feature space, "
         "which makes models smaller and easier to interpret.",
         "**The Transformer receives lightly cleaned text** (mentions → @user, links → http, otherwise "
         "unchanged). Pre-trained language models learned from natural text and use stop words, punctuation and "
         "casing, so aggressive cleaning would remove information they rely on.",
-        "**The BiLSTM keeps stop words.** A sequence model needs function words to model word order and the "
-        "scope of negations.",
+        "**BiLSTM preprocessing** retains stop words to preserve sequence structure and potential cues to "
+        "negation scope.",
     ])
     P.p(
-        f"Preprocessing cut the corpus from {int(prep['Raw whitespace tokens']):,} raw tokens to "
+        f"Preprocessing reduced the corpus from {int(prep['Raw whitespace tokens']):,} raw tokens to "
         f"{int(prep['Tokens after preprocessing']):,}, and the vocabulary from "
         f"{int(prep['Raw vocabulary (lower-cased)']):,} to {int(prep['Vocabulary after preprocessing']):,} "
         f"distinct terms. Only {int(prep['Tweets empty after preprocessing'])} tweets became empty. [[fig:eda_distinctive_terms]] shows "
         "the most distinctive terms per class after preprocessing, measured by weighted log-odds with an "
-        "informative Dirichlet prior (Monroe et al., 2008). The terms are clearly interpretable: waiting and "
+        "informative Dirichlet prior (Monroe et al., 2008). The identified terms include waiting and "
         "delays (*hour, hold, delay, cancel*) for negative tweets, gratitude for positive tweets, and requests "
         "and information (*dm, follow, please, tomorrow*) for neutral tweets."
     )
     P.figure(FIG / "eda_distinctive_terms.png", "Most distinctive terms per sentiment class (weighted log-odds z-scores).", 6.2)
-    P.h("3.3 Ablation: what does each step contribute?", 2)
+    P.h("3.3 Preprocessing ablation", 2)
     P.p(
         "Each preprocessing step was added one at a time and scored with the tuned Linear SVM, using 5-fold "
-        "cross-validated macro-F1 on the training data ([[tab:ablation]])."
+        "cross-validated macro-F1 on the combined training and validation data ([[tab:ablation]])."
     )
     ab = r["ablation"].assign(**{
         "CV macro-F1": lambda d: d["cv_macro_f1_mean"].map(f3),
@@ -525,12 +529,12 @@ def build(args) -> Path:
         f"{pct(1 - abl_vocab[v_full] / abl_vocab[v_tok], 0)} but did **not** improve macro-F1: "
         f"macro-F1 fell from {f3(abl[v_tok])} (tokenised, stop words kept) to {f3(abl[v_stop])} after stop-word "
         f"removal and {f3(abl[v_full])} after lemmatisation. Removing negations as well lowered it further to "
-        f"{f3(abl[v_neg])}, the worst result, which confirms the decision to keep them. Short function words "
+        f"{f3(abl[v_neg])}, consistent with retaining negation terms in this configuration. Short function words "
         "such as *but*, *so*, *why* and *again* carry tone in complaints, and bigrams that contain them (\"why not\", "
-        "\"again\") are lost when they are removed. The full pipeline was still used for the main models, as the "
-        "assignment requires, because it gives a smaller and more interpretable feature space. The cost "
-        "in macro-F1 is reported here openly and discussed as a limitation. These are descriptive CV results "
-        "at fixed tuned hyperparameters, rather than an independently validated causal comparison."
+        "\"again\") are lost when these tokens are removed. The main comparison retained the full pipeline "
+        "to meet the preprocessing specification and reduce vocabulary size. The lower macro-F1 is a "
+        "limitation of this choice. These descriptive cross-validation results use fixed tuned hyperparameters "
+        "and do not isolate preprocessing effects under independent model selection."
     )
 
     # ---------------------------------------------------------------- features
@@ -548,14 +552,14 @@ def build(args) -> Path:
         "the training tweets in each fold; a tweet is the IDF-weighted average of its word vectors.",
         "**Neural representations.** The BiLSTM starts with context-independent Word2Vec token embeddings "
         "and produces contextual hidden states. The optional Transformer uses contextual sub-word states; "
-        "no Transformer results are claimed unless saved predictions exist.",
+        "Transformer evaluation results are unavailable for the present experiment.",
     ])
     P.p(
         "All vectorisers are fitted inside scikit-learn pipelines, so vocabulary and IDF weights are learned only "
         "from the training part of each cross-validation fold and never from held-out data. [[fig:feature_space]] projects "
-        "the TF-IDF space to two dimensions for a balanced sample of 3,000 tweets. Positive tweets form dense "
-        "regions, negative tweets occupy most of the space, and neutral tweets overlap with both. This overlap "
-        "suggests that the neutral class will be the hardest to separate."
+        "the TF-IDF space to two dimensions for a balanced sample of 3,000 tweets. The projections show class-specific "
+        "regions with overlap between neutral tweets and both polar classes. The sample contains equal class counts, so spatial extent does not represent class prevalence. This overlap "
+        "is descriptive; classification difficulty is assessed using held-out metrics rather than the two-dimensional projection."
     )
     P.figure(FIG / "feature_space.png", "TF-IDF feature space: truncated SVD (left) and t-SNE (right) projections.", 6.3)
 
@@ -572,13 +576,13 @@ def build(args) -> Path:
         ("DistilRoBERTa", "Fine-tuned Transformer", "Transfers language knowledge from pre-training (Sanh et al., 2019)"),
     ]
     P.table(pd.DataFrame(model_rows, columns=["Model", "Algorithm / features", "Rationale"]),
-            "Implemented models and rationale; Transformer evaluation is conditional on available predictions.", widths=[1.4, 1.9, 3.2])
+            "Model specifications and selection rationale; the Transformer is an unevaluated extension.", widths=[1.4, 1.9, 3.2])
     P.h("5.2 Data splitting and training strategy", 2)
     P.p(
         "The cleaned data were split once into **70% training, 15% validation and 15% test**, stratified by "
         f"sentiment with a fixed random seed ({config.SEED}). The test set ({len(pd.read_csv(config.PREDICTIONS_DIR / f'{best.slug}_test.csv')):,} "
-        "tweets) was used only for the final evaluation, and every model was scored on exactly the same test "
-        "tweets."
+        "tweets) was excluded from parameter fitting, and every evaluated model was scored on the same tweets. "
+        "The test set was also reused for exploratory model ranking and business diagnostics."
     )
     P.bullets([
         "**Classical models:** grid search over the hyper-parameters in [[tab:grid]] with stratified 5-fold "
@@ -586,7 +590,8 @@ def build(args) -> Path:
         "includes class weighting (none vs. balanced) to address imbalance. The best configuration was then "
         "refitted on all training + validation data.",
         "**BiLSTM:** trained on the training set; the validation set was used for early stopping.",
-        "**Transformer:** fine-tuned on the training set; the epoch with the best validation macro-F1 was kept.",
+        "**Optional Transformer:** the implementation specifies training on the training partition and "
+        "checkpoint selection by validation macro-F1. No completed run is included.",
     ])
     P.p("These training strategies use unequal fitting budgets: classical models are refitted on 85% of "
         "the corpus, whereas neural models fit on 70% and select checkpoints on 15%. Comparisons describe "
@@ -638,9 +643,10 @@ def build(args) -> Path:
     P.h("5.4 Transformer (DistilRoBERTa)", 2)
     P.p(
         "`distilroberta-base` (82 million parameters) is a 6-layer distilled version of RoBERTa (Liu et al., 2019; "
-        "Sanh et al., 2019). It keeps most of the accuracy of the full model at about half the inference cost, "
-        "which matters for scoring live feedback. A classification head with three outputs was added, and the "
-        "implementation uses AdamW (learning rate 2e-5, weight decay 0.01), batch size 32, 3 epochs, a "
+        "Sanh et al., 2019). Its reduced depth motivates evaluation under constrained computational resources; "
+        "relative accuracy and inference cost were not measured in this study. The implementation adds a "
+        "classification head with three outputs and uses "
+        "AdamW (learning rate 2e-5, weight decay 0.01), batch size 32, 3 epochs, a "
         "linear schedule with 10% warm-up, and a maximum of 64 sub-word tokens per tweet (Wolf et al., 2020)."
     )
     if r["has_transformer"]:
@@ -649,11 +655,11 @@ def build(args) -> Path:
         P.figure(FIG / "training_distilroberta.png", "DistilRoBERTa fine-tuning curves.", 5.6)
     else:
         P.p(
-            "**Status:** the Transformer is fully implemented (`src/transformer_model.py`) and can be run with "
+            "The optional Transformer implementation (`src/transformer_model.py`) can be run with "
             "`python scripts/run_pipeline.py --stages transformer evaluate insights`. No completed Transformer "
             "predictions or training metadata are available in this submission, so the Transformer is **not** "
-            "included in the comparison below. Running it on a GPU or a machine with more memory is the first "
-            "recommended extension (Section 7.3)."
+            "included in the model comparison. Completing its training and evaluation is a proposed "
+            "extension (Section 7.3)."
         )
 
     # ---------------------------------------------------------------- evaluation
@@ -718,10 +724,10 @@ def build(args) -> Path:
             widths=[2.4, 1.0, 0.9, 0.8, 0.7, 0.7], font_size=8.5)
     P.p(
         f"For the best model, F1 is {f3(best_pc.loc['negative', 'f1'])} for negative, "
-        f"{f3(best_pc.loc['positive', 'f1'])} for positive and only {f3(best_pc.loc['neutral', 'f1'])} for "
-        "neutral tweets. The confusion matrices ([[fig:confusion_matrices]]) show why: most errors are neutral tweets predicted as "
-        "negative, or the other way around. Neutral tweets are often questions about a problem (\"is flight 1234 "
-        "on time?\"), which share vocabulary with complaints. The BiLSTM has the highest neutral recall "
+        f"{f3(best_pc.loc['positive', 'f1'])} for positive and {f3(best_pc.loc['neutral', 'f1'])} for "
+        "neutral tweets. The confusion matrices ([[fig:confusion_matrices]]) indicate that many errors involve neutral tweets classified as "
+        "negative and negative tweets classified as neutral. Questions about an operational issue, such as \"is flight 1234 "
+        "on time?\", may share vocabulary with complaints; this is a plausible explanation rather than a separately tested mechanism. The BiLSTM has the highest neutral recall "
         f"({f3(pc.loc[('BiLSTM (RNN)', 'neutral'), 'recall'])}) but lower negative recall, which illustrates a "
         "trade-off between the classes rather than a uniformly better model."
         if "BiLSTM (RNN)" in pc.index.get_level_values(0) else
@@ -742,14 +748,14 @@ def build(args) -> Path:
 
     # ---------------------------------------------------------------- interpretation
     P.h("7. Interpretation and Discussion")
-    P.h("7.1 What drives customer sentiment", 2)
+    P.h("7.1 Language associated with sentiment", 2)
     P.p(
-        "The Logistic Regression coefficients ([[fig:insight_top_coefficients]]) show which words push a tweet toward each class. "
-        "Negative sentiment is driven by **time and waiting** (*hour, delay, hold, wait, hr, cancel*), by **bags** "
-        "(*bag, lose, luggage*) and by **contact with the airline** (*call, customer*). Positive sentiment is "
-        "driven almost entirely by gratitude and praise (*thanks, great, love, awesome, kudos*) and by positive "
-        "emoji. In other words, customers complain mainly about operations and service availability, not about "
-        "the product (seats, food, fares)."
+        "The Logistic Regression coefficients ([[fig:insight_top_coefficients]]) identify terms associated with "
+        "each sentiment class in that model. Negative-class terms include waiting and delays "
+        "(*hour, delay, hold, wait, cancel*), baggage (*bag, lose, luggage*) and service contact (*call, customer*). "
+        "Positive-class terms include gratitude and praise (*thanks, great, love, awesome, kudos*). "
+        "These associations help explain the Logistic Regression representation; they do not directly explain "
+        "the leading SVM or establish causal drivers of customer satisfaction."
     )
     P.figure(FIG / "insight_top_coefficients.png", "Words with the largest Logistic Regression coefficients per class.", 6.2)
     P.h("7.2 Business insights", 2)
@@ -759,25 +765,25 @@ def build(args) -> Path:
         f"negative tweets while {pct(t95['precision'], 0)} of the flagged tweets are truly negative; the team "
         f"would review {pct(t95['share_of_tweets_flagged'], 0)} of these test tweets. At 90% recall, precision "
         f"rises to {pct(t90['precision'], 0)} and the review load drops to {pct(t90['share_of_tweets_flagged'], 0)} "
-        "([[fig:insight_negative_pr]]). This gives managers an explicit trade-off between missed complaints and staff workload.",
-        f"**Competitive benchmarking.** Net Sentiment Score (% positive − % negative) calculated from model "
+        "([[fig:insight_negative_pr]]). These operating points quantify the observed trade-off between complaint recall and review volume in the test sample.",
+        f"**Airline-level sentiment estimates.** Net Sentiment Score (% positive − % negative) calculated from model "
         f"predictions differs from the human-labelled score by {kpis['abs_error_nss'].mean():.1f} points on "
         f"average (maximum {kpis['abs_error_nss'].max():.1f}) ([[tab:nss]], [[fig:insight_airline_nss]]). "
         + (f"The airline ranking is reproduced except for {' and '.join(swapped)}, whose true scores differ by only "
            f"{kpis.loc[swapped, 'actual_nss'].max() - kpis.loc[swapped, 'actual_nss'].min():.1f} points. "
            if swapped else "The airline ranking is reproduced exactly. ")
-        + "This supports investigating a dashboard, subject to fresh-data validation, uncertainty estimates and periodic human audits.",
+        + "Airline comparisons therefore require uncertainty estimates, validation on recent data and periodic review of classification errors.",
         f"**Operational priorities.** {rs.index[0]} and {rs.index[1]} together make up "
         f"{rs['percent'].iloc[0] + rs['percent'].iloc[1]:.0f}% of complaint reasons. Investment in call-centre "
         "capacity, proactive delay notifications and faster rebooking could be investigated for the most frequent categories of "
         "negative feedback.",
-        f"**Where the model can be trusted.** On tweets with annotation confidence equal to 1.0, the best model is "
+        f"**Performance by annotation confidence.** On tweets with annotation confidence equal to 1.0, the best model is "
         f"{pct(conf.get('1.00 (maximum score)', float('nan')), 0)} accurate; on tweets with annotator confidence "
-        f"between 0.60 and 0.80 it is only {pct(conf.get('0.60–0.80', float('nan')), 0)} accurate ([[fig:insight_accuracy_by_confidence]]). "
+        f"between 0.60 and 0.80 accuracy is {pct(conf.get('0.60–0.80', float('nan')), 0)} ([[fig:insight_accuracy_by_confidence]]). "
         f"Among complaint types, recall is highest for clear operational events such as cancelled flights "
         f"({pct(reasons_recall.get('Cancelled Flight', float('nan')), 0)}) and lowest for complaints the annotators "
         f"themselves labelled *Can't Tell* ({pct(cant_tell_recall, 0)}). "
-        "Ambiguous, sarcastic or mixed messages should go to a human reviewer.",
+        "The association between annotation confidence and predictive accuracy motivates human review of ambiguous cases; performance on sarcasm was not evaluated separately.",
     ])
     kt = kpis.reset_index()[["airline", "n_test_tweets", "actual_nss", "predicted_nss", "abs_error_nss",
                              "actual_rank", "predicted_rank"]]
@@ -799,46 +805,45 @@ def build(args) -> Path:
         "scores and evaluate on fresh data. SVM margins are not calibrated probabilities. Complaint reason "
         "summaries use existing annotations, rather than a trained reason classifier. This convenience sample "
         "cannot establish population customer satisfaction or causal effects of operational changes.",
-        "**One source and one short period.** All tweets come from Twitter in February 2015. Language, platforms and "
+        "**Temporal and source restrictions.** All tweets come from Twitter in February 2015. Language, platforms and "
         "customer issues change over time, so a deployed model should be retrained periodically and monitored "
         "for drift.",
         f"**Label noise.** {ov['% tweets with confidence < 1']}% of labels have annotator confidence below 1, "
-        "which limits achievable accuracy, particularly for the neutral class. Weighting training examples by "
-        "confidence or re-annotating ambiguous tweets would help.",
-        "**Preprocessing removes some signal.** The ablation shows that stop-word removal and lemmatisation "
+        "which indicates annotation uncertainty. Confidence-based weighting and additional annotation review "
+        "are potential improvements whose effects require evaluation.",
+        "**Preprocessing sensitivity.** The ablation shows that stop-word removal and lemmatisation "
         "lower macro-F1 slightly for linear models. Preprocessing should be treated as a hyper-parameter "
         "tuned for each model.",
-        "**Compute.** "
+        "**Incomplete Transformer evaluation.** "
         + ("Transformer fine-tuning on a CPU is slow. "
            if r["has_transformer"] else
-           "The Transformer could not be fine-tuned on the available hardware. ")
-        + "With a GPU, a larger or tweet-specific model such as TweetEval's RoBERTa (Barbieri et al., 2020) would "
-        "could be evaluated for neutral-class improvements; gains are not established here.",
-        "**Coarse labels.** One label per tweet cannot represent mixed opinions (\"great crew, terrible delay\"). "
+           "Completed Transformer training and evaluation results are unavailable. ")
+        + "A future experiment could evaluate a Transformer on tweet classification, using benchmarks such as "
+        "TweetEval (Barbieri et al., 2020) to inform the design. Any improvement would need to be measured.",
+        "**Label granularity.** One label per tweet cannot represent mixed opinions (\"great crew, terrible delay\"). "
         "Aspect-based sentiment analysis would separate opinions about crew, punctuality, baggage and service.",
-        "**Dataset artefacts.** The text substitutions described in Section 2.2 add noise that a cleaned "
-        "version of the source data would avoid.",
+        "**Dataset artefacts.** The unusual strings described in Section 2.2 may introduce lexical noise. An independently verified "
+        "version of the source text would permit evaluation of their effect.",
     ])
 
     # ---------------------------------------------------------------- conclusion
     P.h("8. Conclusion")
     P.p(
-        f"This study compared {model_word} sentiment-analysis models on {n_clean:,} airline customer tweets, "
+        f"This study compared {model_word} sentiment-classification configurations on {n_clean:,} airline customer tweets, "
         "using a documented preprocessing pipeline, three feature representations and a single held-out test set. "
         f"The **{best['model']}** performed best (accuracy {f3(best['accuracy'])}, macro-F1 {f3(best['f1_macro'])})"
         + (f", ahead of the BiLSTM ({f3(by_slug.loc['bilstm', 'f1_macro'])})" if "bilstm" in by_slug.index else "")
         + (f" and DistilRoBERTa ({f3(by_slug.loc['distilroberta', 'f1_macro'])})" if r["has_transformer"] else "")
-        + ". Well-tuned linear models on TF-IDF n-grams remain very strong for short customer feedback: they are "
-        "accurate, fast, cheap to run and easy to explain to business users. Neutral messages remain the main "
-        "source of error, and better neutral-class performance is where more advanced models are most likely "
-        "to add value."
+        + ". The results favour TF-IDF linear classifiers as computationally economical candidates for short customer feedback; they were "
+        "competitive with the evaluated BiLSTM in this experiment. Neutral-class performance remains weaker than performance on "
+        "the other classes, making ambiguous messages a priority for further evaluation."
     )
     P.p(
-        "For business decision-making, the model can (1) triage incoming tweets so that most complaints reach an "
-        "agent quickly, with an explicit, adjustable trade-off between missed complaints and workload; (2) track "
-        "airline-level sentiment almost as accurately as human labelling; and (3) identify frequent annotated themes involving delays, waiting time "
-        "and customer-service availability in this dataset, without establishing causal drivers. Ambiguous cases should "
-        "still be reviewed by people, and the model should be retrained as customer language changes."
+        "The measured performance warrants further evaluation of complaint routing and sentiment monitoring. Exploratory "
+        "thresholds demonstrate the tradeoff between missed complaints and review workload, while aggregate "
+        "scores show how prediction errors can affect airline comparisons. Existing complaint annotations "
+        "identify themes for operational investigation. Before deployment, thresholds should be selected on "
+        "development data and assessed on fresh data, with human review and ongoing performance monitoring."
     )
 
     # ---------------------------------------------------------------- references
@@ -883,8 +888,9 @@ def build(args) -> Path:
     P.p(
         "The complete, documented code is submitted with this paper. `README.md` explains installation and how to "
         "reproduce every result; `notebooks/sentiment_analysis.ipynb` walks through each step with explanations. "
-        f"All randomness is controlled by one seed ({config.SEED}), and the test-set membership of every tweet is "
-        "recorded in `results/metrics/split_assignment.csv`."
+        f"Stochastic components use a common seed ({config.SEED}), and the test-set membership of every tweet is "
+        "recorded in `results/metrics/split_assignment.csv`. Set PYTHONHASHSEED before interpreter startup and "
+        "use consistent library versions; seeds alone do not guarantee identical results across environments."
     )
     P.code("""
 python scripts/run_pipeline.py          # all stages: eda, classical, ablation, rnn,
@@ -901,7 +907,7 @@ def process_corpus(self, texts):
         tokenized = [[self._lemma(tok, tag) for tok, tag in sent] for sent in tagged]
     return [self._filter(tokens) for tokens in tokenized]  # drop punctuation/stop words
 ''')
-    P.p("Model tuning with leakage-free cross-validation (`src/classical_models.py`):")
+    P.p("Model tuning with feature fitting within cross-validation folds (`src/classical_models.py`):")
     P.code('''
 pipeline = Pipeline([("tfidf", word_tfidf()), ("clf", LinearSVC(random_state=42))])
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
@@ -913,7 +919,7 @@ search.fit(train_val_texts, train_val_labels)
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--author", default="[Your Name]")
+    parser.add_argument("--author", default="Albert Kabore, PhD Student in AI")
     parser.add_argument("--course", default="[Course Name and Number]")
     parser.add_argument("--instructor", default="[Instructor Name]")
     parser.add_argument("--date", default=date.today().strftime("%B %d, %Y"))

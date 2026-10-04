@@ -1,6 +1,6 @@
 # Case Study Part 1: assignment review
 
-Reviewed October 2, 2026 against the instructions supplied in chat. The separate Research Project Rubric was not supplied, so compliance with additional rubric criteria cannot be assessed.
+Reviewed October 3, 2026 against the instructions supplied in chat. The separate Research Project Rubric was not supplied, so compliance with additional rubric criteria cannot be assessed.
 
 The project covers every substantive step in the supplied assignment. The DOCX includes every required section, model comparison, per-class metrics, confusion matrices, ROC curves, business discussion, references and appendices. Important methodological limitations remain and are now disclosed rather than represented as validated deployment findings.
 
@@ -18,10 +18,10 @@ The project covers every substantive step in the supplied assignment. The DOCX i
 | Confusion matrix and/or ROC | 18 embedded paper figures, including both | Covered; document cross-references resolve. |
 | Interpretation, limitations and conclusion | Paper Sections 7-8, notebook Section 6 | Covered; test-selected triage and convenience-sample limitations clarified. |
 | APA or IEEE references | APA-style paper bibliography | Expanded abbreviated software-reference author lists using primary publication metadata. No claim of exhaustive DOI/reference validation. |
-| Formal PDF or DOCX | `Sentiment_Analysis_Research_Paper.docx` | DOCX satisfies the specified alternative. Title-page personal details remain placeholders. |
+| Formal PDF or DOCX | `Sentiment_Analysis_Research_Paper.docx` | DOCX satisfies the specified alternative. Author is Albert Kabore, PhD Student in AI; course and instructor placeholders removed. |
 | Documented Python/notebook and reproduction README | `src/`, `scripts/`, notebook, README | Covered. Fresh full training was not repeated during this review. |
-| ZIP or GitHub link | Local repository | Submission packaging/link still needs to be provided through your course system. |
-| Case Study Part 2 presentation | Reminder added to README and notebook | Separate future assignment; not required for Part 1. |
+| ZIP or GitHub link | Local repository | Submission ZIP is saved in reports/; upload it through your course system. |
+| Case Study Part 2 presentation | Reminder included in README | Separate future assignment; not required for Part 1. |
 
 ## Verified results
 
@@ -56,4 +56,24 @@ The audit is reproducible with `python scripts/audit_project.py`; evidence is sa
 
 ## Before submission
 
-Fill author, course and instructor placeholders, check the DOCX's rendered page layout in Word, and submit the DOCX plus the code ZIP or GitHub link. Apply any additional criteria in your separate Research Project Rubric. Historical tuning provenance and split dependence are disclosed limitations; a fresh complete experiment would be needed to resolve them.
+Check the DOCX's rendered page layout in Word, and submit the DOCX plus the code ZIP or GitHub link. Apply any additional criteria in your separate Research Project Rubric. Historical tuning provenance and split dependence are disclosed limitations; a fresh complete experiment would be needed to resolve them.
+
+## Writing and documentation review: October 3, 2026
+
+The notebook now includes an abstract, an explicit dataset-source description, research objectives, preprocessing justifications, feature descriptions, model-selection rationale, and explanations of the evaluation metrics. Twenty-two observation sections remain beside the relevant outputs, with multiple findings and qualifications in each section. These sections distinguish measured results from interpretations and proposed improvements.
+
+The research-paper generator was revised to remove grammatical errors, unsupported claims about the reason for missing Transformer results, causal interpretations of model coefficients, and premature operational claims. The introduction, objectives, discussion, conclusion, and reproducibility appendix now describe the completed experiment more precisely. The README distinguishes rerunning the pipeline from exact reconstruction of the saved historical searches.
+
+The formal DOCX remains the Part 1 paper deliverable; the notebook is supporting code and documentation. The author is filled in, unwanted title-page placeholders are removed, and the submission ZIP is supplied. The separate Research Project Rubric was not provided. The Part 2 presentation is a subsequent deliverable.
+
+## Final submission review: October 3, 2026
+
+Rechecked the supplied assignment against the notebook, paper headings, source modules and saved results. All six assignment steps and all required paper sections are present. The separate Research Project Rubric was not supplied.
+
+The final paper is `reports/Sentiment_Analysis_Research_Paper.docx`, with Albert Kabore as author and no course or instructor placeholders. Duplicate paper variants were removed. The submission ZIP contains this single paper and the current supporting codebase.
+
+The data audit was rerun successfully: 14,640 source rows, 14,485 cleaned tweets, disjoint tweet IDs in the recorded splits, and six prediction files with matching source labels. All saved scalar comparison metrics were independently recomputed from those predictions and match within 1.2e-16. All 33 automated tests passed again. Notebook code cells parse successfully; no saved error outputs were found. Full notebook execution and fresh model training were not repeated, and rendered Word page layout was not visually inspected.
+
+No synthetic customer feedback was added to the experiment. The notebook's hand-written preprocessing examples were replaced with four actual dataset records and their tweet IDs; their old outputs were cleared so they cannot be mistaken for output from the new code. These records come from the existing Kaggle-labelled airline dataset, not fabricated news. Sentiment annotations reflect annotator judgments and do not certify that every tweet's factual assertions are true. Agreement between predictions and reported metrics verifies internal consistency, not complete historical training provenance or dataset authenticity. Repeated-text overlap, unequal training budgets, missing historical grid definitions and exploratory test-selected thresholds remain disclosed.
+
+Dataset source: [Twitter US Airline Sentiment on Kaggle](https://www.kaggle.com/datasets/crowdflower/twitter-airline-sentiment). Part 2's presentation remains a separate assignment.

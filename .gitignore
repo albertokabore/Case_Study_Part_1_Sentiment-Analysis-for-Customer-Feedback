@@ -224,3 +224,8 @@ __marimo__/
 /models/
 # Run logs
 results/logs/
+
+# Microsoft Word temporary lock files
+~$*.docx
+# Superseded paper may remain locally while open in Word
+/reports/Sentiment_Analysis_Research_Paper.docx
